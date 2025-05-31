@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 import time
 import sys
 import random
@@ -31,20 +32,18 @@ class SortingVisualizer:
 
         tk.Button(input_frame, text="Generate Bars", command=self.generate_random_data, font=("Arial", 10), bg="#4CAF50", fg="white", width=15).grid(row=0, column=2, padx=5)
 
-        # Button Frame
-        btn_frame = tk.Frame(root, bg="#f0f0f0")
-        btn_frame.pack(pady=10)
+        # Algorithm Selection Frame
+        alg_frame = tk.Frame(root, bg="#f0f0f0")
+        alg_frame.pack(pady=10)
 
-        self.timed_bubble_sort = self.measure_performance(self.bubble_sort)
-        self.timed_merge_sort = self.measure_performance(lambda: self.merge_sort(self.data, 0, len(self.data) - 1))
-        self.timed_quick_sort = self.measure_performance(lambda: self.quick_sort(self.data, 0, len(self.data) - 1))
+        tk.Label(alg_frame, text="Select Algorithm:", font=("Arial", 11), bg="#f0f0f0").grid(row=0, column=0, padx=5)
+        self.selected_alg = tk.StringVar()
+        self.selected_alg.set("Bubble Sort")  # Default value
+        alg_options = ["Bubble Sort", "Merge Sort", "Quick Sort"]
+        self.alg_menu = ttk.Combobox(alg_frame, textvariable=self.selected_alg, values=alg_options, state="readonly", font=("Arial", 10), width=17)
+        self.alg_menu.grid(row=0, column=1, padx=5)
 
-        tk.Button(btn_frame, text="Bubble Sort", command=self.timed_bubble_sort,
-                  font=("Arial", 10), bg="#2196F3", fg="white", width=15).pack(side=tk.LEFT, padx=10)
-        tk.Button(btn_frame, text="Merge Sort", command=self.timed_merge_sort,
-                  font=("Arial", 10), bg="#9C27B0", fg="white", width=15).pack(side=tk.LEFT, padx=10)
-        tk.Button(btn_frame, text="Quick Sort", command=self.timed_quick_sort,
-                  font=("Arial", 10), bg="#FF5722", fg="white", width=15).pack(side=tk.LEFT, padx=10)
+        tk.Button(alg_frame, text="Sort", command=self.start_sort, font=("Arial", 10), bg="#2196F3", fg="white", width=15).grid(row=0, column=2, padx=5)
 
         # Metrics Frame
         self.metrics_frame = tk.Frame(root, bg="#f0f0f0")
@@ -56,8 +55,12 @@ class SortingVisualizer:
         self.space_label = tk.Label(self.metrics_frame, text="Space: -", font=("Arial", 11), bg="#f0f0f0")
         self.space_label.pack(side=tk.LEFT, padx=10)
 
-        tk.Button(self.metrics_frame, text="Reset Metrics", command=self.reset_metrics,
-                  font=("Arial", 10), bg="#607D8B", fg="white", width=15).pack(side=tk.LEFT, padx=10)
+        tk.Button(self.metrics_frame, text="Reset Metrics", command=self.reset_metrics, font=("Arial", 10), bg="#607D8B", fg="white", width=15).pack(side=tk.LEFT, padx=10)
+
+        # Wrap sorting methods with performance measurement
+        self.timed_bubble_sort = self.measure_performance(self.bubble_sort)
+        self.timed_merge_sort = self.measure_performance(lambda: self.merge_sort(self.data, 0, len(self.data) - 1))
+        self.timed_quick_sort = self.measure_performance(lambda: self.quick_sort(self.data, 0, len(self.data) - 1))
 
     def reset_metrics(self):
         self.time_label.config(text="Time: -")
@@ -105,6 +108,15 @@ class SortingVisualizer:
             self.canvas.create_rectangle(x0, y0, x1, y1, fill=color)
             self.canvas.create_text(x0 + 2, y0, anchor=tk.SW, text=str(self.data[i]), font=("Arial", 9))
         self.root.update_idletasks()
+
+    def start_sort(self):
+        alg = self.selected_alg.get()
+        if alg == "Bubble Sort":
+            self.timed_bubble_sort()
+        elif alg == "Merge Sort":
+            self.timed_merge_sort()
+        elif alg == "Quick Sort":
+            self.timed_quick_sort()
 
     def bubble_sort(self):
         data = self.data
